@@ -569,6 +569,11 @@ document.addEventListener("DOMContentLoaded", () => {
         `
         }
       </div>
+      <div class="share-buttons">
+        <button class="share-btn share-btn-x" aria-label="Share on X" data-activity="${name}" data-schedule="${formattedSchedule}" title="Share on X">𝕏 Share</button>
+        <button class="share-btn share-btn-facebook" aria-label="Share on Facebook" data-activity="${name}" title="Share on Facebook">Share on Facebook</button>
+        <button class="share-btn share-btn-copy" aria-label="Copy link to clipboard" data-activity="${name}" data-schedule="${formattedSchedule}" title="Copy link">🔗 Copy Link</button>
+      </div>
     `;
 
     // Add click handlers for delete buttons
@@ -586,6 +591,40 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     }
+
+    // Add click handlers for social sharing buttons
+    const shareUrlObj = new URL(window.location.href);
+    shareUrlObj.search = "";
+    shareUrlObj.searchParams.set("activity", name);
+    const shareUrl = shareUrlObj.toString();
+    const shareText = `Check out "${name}" – ${formattedSchedule}`;
+
+    activityCard.querySelector(".share-btn-x").addEventListener("click", () => {
+      const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+      window.open(tweetUrl, "_blank", "noopener,noreferrer");
+    });
+
+    activityCard.querySelector(".share-btn-facebook").addEventListener("click", () => {
+      const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+      window.open(fbUrl, "_blank", "noopener,noreferrer");
+    });
+
+    activityCard.querySelector(".share-btn-copy").addEventListener("click", (event) => {
+      const btn = event.currentTarget;
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        btn.textContent = "✓ Copied!";
+        btn.classList.add("copied");
+        setTimeout(() => {
+          btn.textContent = "🔗 Copy Link";
+          btn.classList.remove("copied");
+        }, 2000);
+      }).catch(() => {
+        btn.textContent = "✗ Failed";
+        setTimeout(() => {
+          btn.textContent = "🔗 Copy Link";
+        }, 2000);
+      });
+    });
 
     activitiesList.appendChild(activityCard);
   }
